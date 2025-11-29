@@ -1,0 +1,71 @@
+@model SIMS.Models.Course
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-plus me-1"></i>
+        Add Course
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            
+            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="CourseCode" class="form-label"></label>
+                    <input asp-for="CourseCode" class="form-control" placeholder="Enter course code" />
+                    <span asp-validation-for="CourseCode" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CourseName" class="form-label"></label>
+                    <input asp-for="CourseName" class="form-control" placeholder="Enter course name" />
+                    <span asp-validation-for="CourseName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter course description"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Credits" class="form-label"></label>
+                    <input asp-for="Credits" class="form-control" type="number" min="1" max="10" placeholder="Enter credits" />
+                    <span asp-validation-for="Credits" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label"></label>
+                    <select asp-for="Status" class="form-control">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

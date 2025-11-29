@@ -1,0 +1,127 @@
+@using SIMS.Models
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "View Students";
+    ViewData["breadcrumb"] = ViewData["breadcrumb"];
+    ViewData["breadcrumb-item"] = "view-students";
+    
+    var course = ViewData["Course"] as Course;
+    var studentList = ViewData["StudentList"] as IEnumerable<dynamic>;
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-users me-1"></i>
+        View Student List - @course?.CourseName
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (course != null)
+        {
+            <div class="mb-3">
+                <h5>Course: <strong>@course.CourseCode - @course.CourseName</strong></h5>
+            </div>
+
+            @if (studentList != null && studentList.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Current Score</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var student in studentList)
+                            {
+                                <tr>
+                                    <td><strong>@student.StudentId</strong></td>
+                                    <td>@student.StudentName</td>
+                                    <td>@student.Email</td>
+                                    <td>
+                                        @{
+                                            decimal? currentScore = null;
+                                            if (student.CurrentScore != null)
+                                            {
+                                                if (decimal.TryParse(student.CurrentScore.ToString(), out decimal scoreValue))
+                                                {
+                                                    currentScore = scoreValue;
+                                                }
+                                            }
+                                        }
+                                        @if (currentScore.HasValue)
+                                        {
+                                            <span class="badge bg-info">@currentScore.Value.ToString("F1")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not graded</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-action="GradeStudents" asp-controller="FacultyDashboard" asp-route-courseId="@course.Id" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check-circle"></i> Grade
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-1"></i>
+                    No students enrolled in this course.
+                </div>
+            }
+
+            <div class="mt-3">
+                <a asp-action="MyCourses" asp-controller="FacultyDashboard" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Back to My Courses
+                </a>
+                @if (studentList != null && studentList.Any())
+                {
+                    <a asp-action="GradeStudents" asp-controller="FacultyDashboard" asp-route-courseId="@course.Id" class="btn btn-primary">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Grade All Students
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Course information not found.
+            </div>
+            <div class="mt-3">
+                <a asp-action="MyCourses" asp-controller="FacultyDashboard" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Back to My Courses
+                </a>
+            </div>
+        }
+    </div>
+</div>
+

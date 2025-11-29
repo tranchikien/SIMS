@@ -1,0 +1,88 @@
+@model IEnumerable<SIMS.Models.StudentGradeDisplay>
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "My Grades";
+    ViewData["breadcrumb"] = "My Grades";
+    ViewData["breadcrumb-item"] = "my-grades";
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-chart-line me-1"></i>
+        My Grades
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Course Name</th>
+                            <th>Final Score</th>
+                            <th>Grade</th>
+                            <th>Comment (Optional)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var grade in Model)
+                        {
+                            <tr>
+                                <td><strong>@grade.CourseName</strong></td>
+                                <td>
+                                    @if (grade.FinalScore.HasValue)
+                                    {
+                                        @grade.FinalScore.Value.ToString("F1")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(grade.LetterGrade))
+                                    {
+                                        var letterGrade = grade.LetterGrade.ToString();
+                                        var badgeClass = letterGrade switch
+                                        {
+                                            "A" => "bg-success",
+                                            "B" => "bg-primary",
+                                            "C" => "bg-info",
+                                            "D" => "bg-warning",
+                                            "F" => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
+                                        <span class="badge @badgeClass">@letterGrade</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(grade.Comment))
+                                    {
+                                        <span>@grade.Comment</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                No grades available yet.
+            </div>
+        }
+
+    </div>
+</div>
+

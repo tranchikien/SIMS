@@ -1,0 +1,114 @@
+@model SIMS.Models.EnrollmentViewModel
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "Add Enrollment";
+    ViewData["breadcrumb"] = "Add Enrollment";
+    ViewData["breadcrumb-item"] = "enrollments";
+    
+    var students = ViewData["Students"] as List<SIMS.Models.Student>;
+    var courses = ViewData["Courses"] as List<SIMS.Models.Course>;
+    var faculties = ViewData["Faculties"] as List<SIMS.Models.Faculty>;
+    var enrollments = ViewData["Enrollments"] as List<SIMS.Models.Enrollment>;
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-user-plus me-1"></i>
+        Add Course for Student
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""]?.Errors.Count > 0)
+            {
+                <div class="alert alert-danger">
+                    @foreach (var error in ViewData.ModelState[""].Errors)
+                    {
+                        <p class="mb-0">@error.ErrorMessage</p>
+                    }
+                </div>
+            }
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="StudentId" class="form-label"></label>
+                    <select asp-for="StudentId" class="form-select" required>
+                        <option value="">-- Select Student --</option>
+                        @if (students != null)
+                        {
+                            @foreach (var student in students)
+                            {
+                                <option value="@student.Id">@student.StudentId - @student.FullName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="StudentId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CourseId" class="form-label"></label>
+                    <select asp-for="CourseId" class="form-select" required>
+                        <option value="">-- Select Course --</option>
+                        @if (courses != null)
+                        {
+                            @foreach (var course in courses)
+                            {
+                                <option value="@course.Id">@course.CourseCode - @course.CourseName (@course.Credits credits)</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="CourseId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="FacultyId" class="form-label"></label>
+                    <select asp-for="FacultyId" class="form-select">
+                        <option value="">-- Select Faculty (Optional) --</option>
+                        @if (faculties != null)
+                        {
+                            @foreach (var faculty in faculties)
+                            {
+                                <option value="@faculty.Id">@faculty.FacultyId - @faculty.FullName</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="FacultyId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label"></label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Enrolled">Enrolled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Dropped">Dropped</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Note:</strong> The system will check if the student is already enrolled in the selected course. Duplicate enrollments will not be allowed.
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Enrollment
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

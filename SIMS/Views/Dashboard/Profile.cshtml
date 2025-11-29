@@ -1,0 +1,122 @@
+@model SIMS.Models.AdminProfile
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "My Profile";
+    ViewData["breadcrumb"] = "My Profile";
+}
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-user me-1"></i>
+                    My Profile
+                </span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="editProfileBtn">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </button>
+                    <button type="submit" form="adminProfileForm" class="btn btn-primary btn-sm" id="saveProfileBtn" disabled>
+                        <i class="fas fa-save me-1"></i>Save
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (TempData["ProfileUpdated"] is bool updated && updated)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Profile updated successfully.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                <form asp-action="Profile" method="post" id="adminProfileForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="FullName" class="form-label fw-bold"></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="FullName" class="form-control" readonly data-editable="true" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Email" class="form-label fw-bold"></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="Email" class="form-control" readonly data-editable="true" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Username" class="form-label fw-bold"></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="Username" class="form-control" readonly data-locked="true" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Role" class="form-label fw-bold"></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="Role" class="form-control" readonly data-editable="true" />
+                            <span asp-validation-for="Role" class="text-danger"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="card mb-4 text-center">
+            <div class="card-body">
+                <span class="user-avatar profile-avatar mb-3 rounded-circle d-inline-flex align-items-center justify-content-center">
+                    <i class="fas fa-user fa-2x"></i>
+                </span>
+                <h4>@Model.FullName</h4>
+                <p class="text-muted mb-1">@Model.Role</p>
+                <small class="text-muted">Username: @Model.Username</small>
+            </div>
+            <div class="card-footer">
+                <span class="text-muted small">System Administrator</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const editBtn = document.getElementById('editProfileBtn');
+            const saveBtn = document.getElementById('saveProfileBtn');
+            const form = document.getElementById('adminProfileForm');
+            const editableInputs = form.querySelectorAll('input[data-editable="true"]');
+
+            editBtn?.addEventListener('click', () => {
+                editableInputs.forEach(input => {
+                    input.removeAttribute('readonly');
+                });
+                editableInputs[0]?.focus();
+                saveBtn.removeAttribute('disabled');
+                editBtn.setAttribute('disabled', 'disabled');
+            });
+        })();
+    </script>
+}

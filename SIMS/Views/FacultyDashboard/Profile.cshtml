@@ -1,0 +1,87 @@
+@using SIMS.Models
+@model Faculty
+@{
+    Layout = "~/Views/Shared/_FacultyLayout.cshtml";
+    ViewData["Title"] = "My Profile";
+    ViewData["breadcrumb"] = "My Profile";
+    ViewData["breadcrumb-item"] = "";
+}
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-user me-1"></i>
+                My Profile
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-1"></i>
+                    This information is read-only. Please contact the administrator if you need to update your profile.
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Full Name:</label>
+                    </div>
+                    <div class="col-md-8">
+                        <p class="form-control-plaintext">@Model.FullName</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Email:</label>
+                    </div>
+                    <div class="col-md-8">
+                        <p class="form-control-plaintext">@Model.Email</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Faculty ID:</label>
+                    </div>
+                    <div class="col-md-8">
+                        <p class="form-control-plaintext">@Model.FacultyId</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Department:</label>
+                    </div>
+                    <div class="col-md-8">
+                        <p class="form-control-plaintext">@Model.Department</p>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Status:</label>
+                    </div>
+                    <div class="col-md-8">
+                        @if (Model.Status == "Active")
+                        {
+                            <span class="badge bg-success">@Model.Status</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@Model.Status</span>
+                        }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
