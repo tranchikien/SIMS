@@ -1,0 +1,128 @@
+@model SIMS.Models.GradeViewModel
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "Grade Students";
+    ViewData["breadcrumb"] = ViewData["breadcrumb"];
+    ViewData["breadcrumb-item"] = "grade-students";
+}
+
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <i class="fas fa-check-circle me-1"></i>
+        Grade Students – @Model.CourseName
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form asp-action="GradeStudents" asp-controller="FacultyDashboard" method="post" id="gradeForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="CourseId" />
+            <input type="hidden" asp-for="CourseName" />
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Instructions:</strong> Enter final scores for each student. Scores should be between 0 and 100. You can add optional comments for each student.
+            </div>
+
+            @if (Model.Students != null && Model.Students.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Final Score</th>
+                                <th>Comment (Optional)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Students.Count; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@Model.Students[i].StudentIdCode</strong>
+                                        <input type="hidden" asp-for="Students[i].EnrollmentId" />
+                                        <input type="hidden" asp-for="Students[i].StudentId" />
+                                        <input type="hidden" asp-for="Students[i].StudentIdCode" />
+                                        <input type="hidden" asp-for="Students[i].StudentName" />
+                                    </td>
+                                    <td>@Model.Students[i].StudentName</td>
+                                    <td>
+                                        <input type="number" 
+                                               asp-for="Students[i].FinalScore" 
+                                               class="form-control" 
+                                               min="0" 
+                                               max="100" 
+                                               step="0.1"
+                                               placeholder="Enter score (0-100)" />
+                                        <span asp-validation-for="Students[i].FinalScore" class="text-danger"></span>
+                                    </td>
+                                    <td>
+                                        <input type="text" 
+                                               asp-for="Students[i].Comment" 
+                                               class="form-control" 
+                                               placeholder="Optional comment" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fas fa-save me-1"></i>
+                        Save All Scores
+                    </button>
+                    <a asp-action="ViewStudents" asp-controller="FacultyDashboard" asp-route-courseId="@Model.CourseId" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times me-1"></i>
+                        Cancel
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    No students found for this course.
+                </div>
+                <div class="mt-3">
+                    <a asp-action="MyCourses" asp-controller="FacultyDashboard" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Back to My Courses
+                    </a>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Optional: Add client-side validation or auto-save functionality
+        document.getElementById('gradeForm').addEventListener('submit', function(e) {
+            var hasScore = false;
+            var inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(function(input) {
+                if (input.value && parseFloat(input.value) >= 0) {
+                    hasScore = true;
+                }
+            });
+            
+            if (!hasScore) {
+                e.preventDefault();
+                alert('Please enter at least one score before saving.');
+                return false;
+            }
+        });
+    </script>
+}
+

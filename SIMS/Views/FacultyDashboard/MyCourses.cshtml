@@ -1,0 +1,85 @@
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "My Courses";
+    ViewData["breadcrumb"] = "My Courses";
+    ViewData["breadcrumb-item"] = "my-courses";
+    
+    var coursesList = ViewData["CoursesList"] as IEnumerable<dynamic>;
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-book me-1"></i>
+        My Courses - View Courses Teaching
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (coursesList != null && coursesList.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Credits</th>
+                            <th>Students Count</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var course in coursesList)
+                        {
+                            <tr>
+                                <td><strong>@(course?.CourseCode ?? "N/A")</strong></td>
+                                <td>@(course?.CourseName ?? "N/A")</td>
+                                <td>@(course?.Credits ?? 0)</td>
+                                <td>
+                                    <span class="badge bg-info">@(course?.StudentCount ?? 0)</span>
+                                </td>
+                                <td>
+                                    @if (course != null && course.CourseId > 0)
+                                    {
+                                        <a asp-action="ViewStudents" asp-route-courseId="@course.CourseId" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-users"></i> View Student List
+                                        </a>
+                                        <a asp-action="GradeStudents" asp-route-courseId="@course.CourseId" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check-circle"></i> Grade Students
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                You are not assigned to any courses yet.
+            </div>
+        }
+
+    </div>
+</div>
+

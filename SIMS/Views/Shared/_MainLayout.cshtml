@@ -1,0 +1,55 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("Role") ?? "Admin";
+    string navbarPartial = "_Navbar";
+    string sidebarPartial = "_Sidebar";
+    
+    if (role == "Student")
+    {
+        navbarPartial = "_StudentNavbar";
+        sidebarPartial = "_StudentSidebar";
+    }
+    else if (role == "Faculty")
+    {
+        navbarPartial = "_FacultyNavbar";
+        sidebarPartial = "_FacultySidebar";
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>@ViewData["Title"] - SIMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+    <link href="~/sims/css/styles.css" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+<body class="sb-nav-fixed">
+    <partial name="Partials/@navbarPartial" />
+    <div id="layoutSidenav">
+        <partial name="Partials/@sidebarPartial" />
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4">
+                    <h1 class="mt-4">
+                        @ViewData["breadcrumb"]
+                    </h1>
+                    @RenderBody()
+                </div>
+            </main>
+            <partial name="Partials/_Footer" />
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="~/sims/js/scripts.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

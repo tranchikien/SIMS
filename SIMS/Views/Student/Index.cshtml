@@ -1,0 +1,106 @@
+@model List<SIMS.Models.Student>
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table me-1"></i>
+        Manage Students
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Student
+                </a>
+            </div>
+            <div class="col-md-6">
+                <form asp-action="Index" method="get" class="d-flex">
+                    <input class="form-control me-2" type="search" name="searchString" placeholder="Search by name, email, ID, or program..." value="@ViewData["CurrentFilter"]" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    }
+                </form>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Program</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var student in Model)
+                        {
+                            <tr>
+                                <td>@student.StudentId</td>
+                                <td>@student.FullName</td>
+                                <td>@student.Email</td>
+                                <td>@student.Program</td>
+                                <td>
+                                    @if (student.Status == "Active")
+                                    {
+                                        <span class="badge bg-success">@student.Status</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">@student.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@student.Id" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@student.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center">No students found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

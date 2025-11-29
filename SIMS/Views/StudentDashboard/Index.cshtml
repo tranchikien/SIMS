@@ -1,0 +1,185 @@
+@using SIMS.Models
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "Student Dashboard";
+    ViewData["breadcrumb"] = "Student Dashboard";
+    ViewData["breadcrumb-item"] = "student-dashboard";
+    
+    var student = ViewData["Student"] as Student;
+    var enrolledCourses = ViewData["EnrolledCourses"] as IEnumerable<dynamic>;
+    var totalCredits = (int)(ViewData["TotalCredits"] ?? 0);
+    var gpa = ViewData["GPA"] as decimal?;
+}
+
+<!-- Student Information Card -->
+<div class="row mb-4">
+    <div class="col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-user-graduate me-1"></i>
+                Student Information
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h5 class="mb-3">@student?.FullName</h5>
+                        <p class="mb-1"><strong>Student ID:</strong> @student?.StudentId</p>
+                        <p class="mb-0"><strong>Email:</strong> @student?.Email</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="mb-3">Academic Summary</h5>
+                        <p class="mb-1"><strong>Total Credits:</strong> @totalCredits</p>
+                        @if (gpa.HasValue)
+                        {
+                            <p class="mb-0"><strong>GPA:</strong> @gpa.Value.ToString("F2")</p>
+                        }
+                        else
+                        {
+                            <p class="mb-0"><strong>GPA:</strong> N/A</p>
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="mb-3">Program</h5>
+                        <p class="mb-0">@student?.Program</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enrolled Courses Section -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-book me-1"></i>
+                Enrolled Courses
+            </div>
+            <div class="card-body">
+                @if (enrolledCourses != null && enrolledCourses.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Faculty</th>
+                                    <th>Credits</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var course in enrolledCourses)
+                                {
+                                    <tr>
+                                        <td>@course.CourseCode</td>
+                                        <td>@course.CourseName</td>
+                                        <td>@course.FacultyName</td>
+                                        <td>@course.Credits</td>
+                                        <td>
+                                            <span class="badge bg-success">@course.Status</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-1"></i>
+                        You are not enrolled in any courses yet.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-primary text-white mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small">Enrolled Courses</div>
+                        <div class="h3 mb-0">@(enrolledCourses?.Count() ?? 0)</div>
+                    </div>
+                    <div>
+                        <i class="fas fa-book fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" asp-controller="StudentDashboard" asp-action="MyCourses">View All Courses</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small">Total Credits</div>
+                        <div class="h3 mb-0">@totalCredits</div>
+                    </div>
+                    <div>
+                        <i class="fas fa-graduation-cap fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-info text-white mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small">GPA</div>
+                        <div class="h3 mb-0">
+                            @if (gpa.HasValue)
+                            {
+                                @gpa.Value.ToString("F2")
+                            }
+                            else
+                            {
+                                <text>N/A</text>
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" asp-controller="StudentDashboard" asp-action="MyGrades">View Grades</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-warning text-white mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="small">My Profile</div>
+                        <div class="h5 mb-0">View</div>
+                    </div>
+                    <div>
+                        <i class="fas fa-user fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" asp-controller="StudentDashboard" asp-action="Profile">View Profile</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+</div>

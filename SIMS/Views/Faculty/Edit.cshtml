@@ -1,0 +1,97 @@
+@model SIMS.Models.FacultyEditViewModel
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-user-edit me-1"></i>
+        Edit Faculty
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="Role" type="hidden" />
+            
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="FullName" class="form-label"></label>
+                    <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" type="email" placeholder="Enter email address" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="FacultyId" class="form-label"></label>
+                    <input asp-for="FacultyId" class="form-control" placeholder="Enter faculty ID" />
+                    <span asp-validation-for="FacultyId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Department" class="form-label"></label>
+                    <input asp-for="Department" class="form-control" placeholder="Enter department" />
+                    <span asp-validation-for="Department" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" type="password" placeholder="Leave blank to keep current password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                    <small class="form-text text-muted">Leave blank if you don't want to change the password.</small>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" type="password" placeholder="Confirm new password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label"></label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Role</label>
+                    <input class="form-control" value="Faculty" disabled />
+                    <input asp-for="Role" type="hidden" value="Faculty" />
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Note:</strong> Faculty will need the password to login. If you change the password, make sure to inform the faculty member.
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

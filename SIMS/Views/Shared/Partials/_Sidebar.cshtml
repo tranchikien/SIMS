@@ -1,0 +1,46 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div id="layoutSidenav_nav">
+    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+        <div class="sb-sidenav-menu">
+            <div class="nav">
+                <div class="sb-sidenav-menu-heading">Menu</div>
+                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
+                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    Dashboard
+                </a>
+                <a class="nav-link" asp-controller="Student" asp-action="Index">
+                    <div class="sb-nav-link-icon"><i class="fas fa-user-graduate"></i></div>
+                    Manage Students
+                </a>
+                <a class="nav-link" asp-controller="Faculty" asp-action="Index">
+                    <div class="sb-nav-link-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                    Manage Faculty
+                </a>
+                <a class="nav-link" asp-controller="Course" asp-action="Index">
+                    <div class="sb-nav-link-icon"><i class="fas fa-book"></i></div>
+                    Manage Courses
+                </a>
+                <a class="nav-link" asp-controller="Enrollment" asp-action="Index">
+                    <div class="sb-nav-link-icon"><i class="fas fa-user-check"></i></div>
+                    Manage Enrollments
+                </a>
+                <a class="nav-link" asp-controller="Dashboard" asp-action="Profile">
+                    <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
+                    My Profile
+                </a>
+                <a class="nav-link" asp-controller="Login" asp-action="Logout">
+                    <div class="sb-nav-link-icon"><i class="fas fa-sign-out-alt"></i></div>
+                    Logout
+                </a>
+            </div>
+        </div>
+        <div class="sb-sidenav-footer">
+            <div class="small">Logged in as:</div>
+            Admin
+        </div>
+    </nav>
+</div>

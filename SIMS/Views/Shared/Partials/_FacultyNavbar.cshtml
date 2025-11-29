@@ -1,0 +1,23 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var fullName = HttpContextAccessor.HttpContext?.Session.GetString("FullName") ?? "Faculty";
+}
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+    <!-- Navbar Brand-->
+    <a class="navbar-brand ps-3" asp-controller="FacultyDashboard" asp-action="Index">Faculty Portal</a>
+    <!-- Sidebar Toggle-->
+    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+    <!-- Navbar-->
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <div class="navbar-text text-white d-flex align-items-center gap-2">
+                <span class="user-avatar rounded-circle d-inline-flex align-items-center justify-content-center">
+                    <i class="fas fa-user fa-fw"></i>
+                </span>
+                <span class="fw-semibold">@fullName</span>
+            </div>
+        </li>
+    </ul>
+</nav>
+

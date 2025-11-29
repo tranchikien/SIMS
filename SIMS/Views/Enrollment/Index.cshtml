@@ -1,0 +1,117 @@
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "Manage Enrollments";
+    ViewData["breadcrumb"] = "Manage Enrollments";
+    ViewData["breadcrumb-item"] = "enrollments";
+    
+    var enrollmentList = ViewData["EnrollmentList"] as IEnumerable<dynamic>;
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-table me-1"></i>
+        Manage Enrollments
+    </div>
+    <div class="card-body">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Enrollment
+                </a>
+            </div>
+            <div class="col-md-6">
+                <form asp-action="Index" method="get" class="d-flex">
+                    <input class="form-control me-2" type="search" name="searchString" placeholder="Search by student name, ID, course code, or course name..." value="@ViewData["CurrentFilter"]" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()))
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    }
+                </form>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Faculty</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (enrollmentList != null && enrollmentList.Any())
+                    {
+                        @foreach (var item in enrollmentList)
+                        {
+                            <tr>
+                                <td>@item.Student.StudentId</td>
+                                <td>@item.Student.FullName</td>
+                                <td><strong>@item.Course.CourseCode</strong></td>
+                                <td>@item.Course.CourseName</td>
+                                <td>@(item.Faculty?.FullName ?? "Not Assigned")</td>
+                                <td>
+                                    @if (item.Enrollment.Status == "Enrolled")
+                                    {
+                                        <span class="badge bg-success">@item.Enrollment.Status</span>
+                                    }
+                                    else if (item.Enrollment.Status == "Completed")
+                                    {
+                                        <span class="badge bg-primary">@item.Enrollment.Status</span>
+                                    }
+                                    else if (item.Enrollment.Status == "Dropped")
+                                    {
+                                        <span class="badge bg-danger">@item.Enrollment.Status</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.Enrollment.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    <form asp-action="Delete" asp-route-id="@item.Enrollment.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this enrollment?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Remove
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center">No enrollments found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,78 @@
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "My Courses";
+    ViewData["breadcrumb"] = "My Courses";
+    ViewData["breadcrumb-item"] = "my-courses";
+    
+    var enrolledCourses = ViewData["EnrolledCourses"] as IEnumerable<dynamic>;
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-book me-1"></i>
+        My Enrolled Courses
+    </div>
+    <div class="card-body">
+        @if (enrolledCourses != null && enrolledCourses.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Faculty</th>
+                            <th>Credits</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var course in enrolledCourses)
+                        {
+                            <tr>
+                                <td><strong>@course.CourseCode</strong></td>
+                                <td>@course.CourseName</td>
+                                <td>@course.FacultyName</td>
+                                <td>@course.Credits</td>
+                                <td>
+                                    @if (course.Status == "Enrolled")
+                                    {
+                                        <span class="badge bg-success">@course.Status</span>
+                                    }
+                                    else if (course.Status == "Completed")
+                                    {
+                                        <span class="badge bg-primary">@course.Status</span>
+                                    }
+                                    else if (course.Status == "Dropped")
+                                    {
+                                        <span class="badge bg-danger">@course.Status</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@course.Status</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-info">
+                            <td colspan="3" class="text-end fw-bold">Total Credits:</td>
+                            <td class="fw-bold">@enrolledCourses.Sum(c => (int)c.Credits)</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                You are not enrolled in any courses yet.
+            </div>
+        }
+
+    </div>
+</div>
+
