@@ -84,6 +84,7 @@ namespace SIMS.Controllers
             return View();
         }
 
+<<<<<<< HEAD
         public IActionResult Profile()
         {
             var faculty = GetCurrentFaculty();
@@ -98,6 +99,8 @@ namespace SIMS.Controllers
             return View(faculty);
         }
 
+=======
+>>>>>>> ee194c07c122bf48106af85d3475a24fce023e6c
         public IActionResult MyCourses()
         {
             var faculty = GetCurrentFaculty();
