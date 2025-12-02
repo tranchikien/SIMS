@@ -21,21 +21,34 @@ namespace SIMS
                 options.Cookie.IsEssential = true;
             });
 
-            // Configure Entity Framework Core with SQL Server
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            if (string.IsNullOrEmpty(connectionString))
+            // Configure Entity Framework Core
+            var isTesting = builder.Environment.EnvironmentName == "Testing";
+
+            string? connectionString = null;
+            if (!isTesting)
             {
-                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            }
-            
-            builder.Services.AddDbContext<SIMSDbContext>(options =>
-                options.UseSqlServer(connectionString, sqlOptions =>
+                // Production / Development: dùng SQL Server
+                connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+                if (string.IsNullOrEmpty(connectionString))
                 {
-                    sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 3,
-                        maxRetryDelay: TimeSpan.FromSeconds(30),
-                        errorNumbersToAdd: null);
-                }));
+                    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+                }
+
+                builder.Services.AddDbContext<SIMSDbContext>(options =>
+                    options.UseSqlServer(connectionString, sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 3,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                    }));
+            }
+            else
+            {
+                // Testing: dùng InMemory để phục vụ unit/integration/E2E tests
+                builder.Services.AddDbContext<SIMSDbContext>(options =>
+                    options.UseInMemoryDatabase("SIMS_Test_DB"));
+            }
 
             // Register Repositories (SOLID: Dependency Inversion)
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -68,22 +81,30 @@ namespace SIMS
                 try
                 {
                     var context = services.GetRequiredService<SIMSDbContext>();
-                    
-                    logger.LogInformation("Đang kiểm tra kết nối database...");
-                    
-                    // Test connection first
-                    if (!context.Database.CanConnect())
+
+                    if (app.Environment.IsEnvironment("Testing"))
                     {
-                        logger.LogWarning("Không thể kết nối đến database. Đang thử tạo database...");
+                        logger.LogInformation("Đang chạy trong môi trường Testing với InMemory database.");
                         context.Database.EnsureCreated();
-                        logger.LogInformation("Database đã được tạo thành công!");
                     }
                     else
                     {
-                        logger.LogInformation("Đã kết nối thành công đến database.");
-                        
-                        // Ensure tables exist
-                        context.Database.EnsureCreated();
+                        logger.LogInformation("Đang kiểm tra kết nối database...");
+
+                        // Test connection first
+                        if (!context.Database.CanConnect())
+                        {
+                            logger.LogWarning("Không thể kết nối đến database. Đang thử tạo database...");
+                            context.Database.EnsureCreated();
+                            logger.LogInformation("Database đã được tạo thành công!");
+                        }
+                        else
+                        {
+                            logger.LogInformation("Đã kết nối thành công đến database.");
+
+                            // Ensure tables exist
+                            context.Database.EnsureCreated();
+                        }
                     }
                 }
                 catch (Microsoft.Data.SqlClient.SqlException sqlEx)
@@ -91,7 +112,10 @@ namespace SIMS
                     logger.LogError(sqlEx, "Lỗi SQL Server: {Message}", sqlEx.Message);
                     Console.WriteLine($"\n=== LỖI KẾT NỐI SQL SERVER ===");
                     Console.WriteLine($"Lỗi: {sqlEx.Message}");
-                    Console.WriteLine($"Connection String: {connectionString}");
+                    if (connectionString != null)
+                    {
+                        Console.WriteLine($"Connection String: {connectionString}");
+                    }
                     Console.WriteLine($"\nCÁCH KHẮC PHỤC:");
                     Console.WriteLine($"1. Kiểm tra SQL Server đã được cài đặt và đang chạy");
                     Console.WriteLine($"2. Kiểm tra tên server trong connection string:");
@@ -106,7 +130,10 @@ namespace SIMS
                     logger.LogError(ex, "Lỗi không xác định: {Message}", ex.Message);
                     Console.WriteLine($"\n=== LỖI ===");
                     Console.WriteLine($"Message: {ex.Message}");
-                    Console.WriteLine($"Connection String: {connectionString}\n");
+                    if (connectionString != null)
+                    {
+                        Console.WriteLine($"Connection String: {connectionString}\n");
+                    }
                 }
             }
 

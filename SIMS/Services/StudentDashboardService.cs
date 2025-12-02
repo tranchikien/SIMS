@@ -113,13 +113,7 @@ namespace SIMS.Services
                 .Select(x => new StudentGradeDisplay
                 {
                     CourseName = x.Course!.CourseName,
-<<<<<<< HEAD
                     FinalScore = x.Grade.FinalScore,
-=======
-                    MidtermScore = x.Grade.MidtermScore,
-                    FinalScore = x.Grade.FinalScore,
-                    AssignmentScore = x.Grade.AssignmentScore,
->>>>>>> ee194c07c122bf48106af85d3475a24fce023e6c
                     TotalScore = x.Grade.TotalScore,
                     LetterGrade = !string.IsNullOrEmpty(x.Grade.LetterGrade)
                         ? x.Grade.LetterGrade

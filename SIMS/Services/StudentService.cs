@@ -13,24 +13,16 @@ namespace SIMS.Services
     {
         private readonly IStudentRepository _studentRepository;
         private readonly IUserRepository _userRepository;
-<<<<<<< HEAD
         private readonly IEnrollmentRepository _enrollmentRepository;
 
         public StudentService(
-            IStudentRepository studentRepository, 
+            IStudentRepository studentRepository,
             IUserRepository userRepository,
             IEnrollmentRepository enrollmentRepository)
         {
             _studentRepository = studentRepository;
             _userRepository = userRepository;
             _enrollmentRepository = enrollmentRepository;
-=======
-
-        public StudentService(IStudentRepository studentRepository, IUserRepository userRepository)
-        {
-            _studentRepository = studentRepository;
-            _userRepository = userRepository;
->>>>>>> ee194c07c122bf48106af85d3475a24fce023e6c
         }
 
         public IEnumerable<Student> GetAllStudents(string? searchString = null)
@@ -144,7 +136,6 @@ namespace SIMS.Services
                 return false;
             }
 
-<<<<<<< HEAD
             // Delete all enrollments for this student first (due to foreign key constraint)
             var enrollments = _enrollmentRepository.GetByStudentId(id).ToList();
             foreach (var enrollment in enrollments)
@@ -152,8 +143,6 @@ namespace SIMS.Services
                 _enrollmentRepository.Delete(enrollment.Id);
             }
 
-=======
->>>>>>> ee194c07c122bf48106af85d3475a24fce023e6c
             // Delete corresponding User account
             var user = _userRepository.GetByReferenceId(id, "Student");
             if (user != null)

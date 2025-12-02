@@ -214,18 +214,12 @@ namespace SIMS.Services
         {
             if (!File.Exists(GradesFile))
             {
-                // Return default sample grades
+                // Return default sample grades (chỉ dùng FinalScore & TotalScore)
                 return new List<Grade>
                 {
-<<<<<<< HEAD
                     new Grade { Id = 1, EnrollmentId = 1, StudentId = 1, CourseId = 1, FinalScore = 90, TotalScore = 90m, LetterGrade = "A" },
                     new Grade { Id = 2, EnrollmentId = 2, StudentId = 1, CourseId = 2, FinalScore = 82, TotalScore = 82m, LetterGrade = "B" },
                     new Grade { Id = 3, EnrollmentId = 3, StudentId = 2, CourseId = 1, FinalScore = 95, TotalScore = 95m, LetterGrade = "A" }
-=======
-                    new Grade { Id = 1, EnrollmentId = 1, StudentId = 1, CourseId = 1, MidtermScore = 85, FinalScore = 90, AssignmentScore = 88, TotalScore = 87.5m, LetterGrade = "A" },
-                    new Grade { Id = 2, EnrollmentId = 2, StudentId = 1, CourseId = 2, MidtermScore = 78, FinalScore = 82, AssignmentScore = 80, TotalScore = 80m, LetterGrade = "B" },
-                    new Grade { Id = 3, EnrollmentId = 3, StudentId = 2, CourseId = 1, MidtermScore = 92, FinalScore = 95, AssignmentScore = 90, TotalScore = 92.5m, LetterGrade = "A" }
->>>>>>> ee194c07c122bf48106af85d3475a24fce023e6c
                 };
             }
 

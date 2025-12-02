@@ -13,24 +13,16 @@ namespace SIMS.Services
     {
         private readonly IFacultyRepository _facultyRepository;
         private readonly IUserRepository _userRepository;
-<<<<<<< HEAD
         private readonly IEnrollmentRepository _enrollmentRepository;
 
         public FacultyService(
-            IFacultyRepository facultyRepository, 
+            IFacultyRepository facultyRepository,
             IUserRepository userRepository,
             IEnrollmentRepository enrollmentRepository)
         {
             _facultyRepository = facultyRepository;
             _userRepository = userRepository;
             _enrollmentRepository = enrollmentRepository;
-=======
-
-        public FacultyService(IFacultyRepository facultyRepository, IUserRepository userRepository)
-        {
-            _facultyRepository = facultyRepository;
-            _userRepository = userRepository;
->>>>>>> ee194c07c122bf48106af85d3475a24fce023e6c
         }
 
         public IEnumerable<Faculty> GetAllFaculties(string? searchString = null)
@@ -144,7 +136,6 @@ namespace SIMS.Services
                 return false;
             }
 
-<<<<<<< HEAD
             // Set FacultyId to NULL for all enrollments referencing this faculty
             var enrollments = _enrollmentRepository.GetByFacultyId(id);
             foreach (var enrollment in enrollments)
@@ -153,8 +144,6 @@ namespace SIMS.Services
                 _enrollmentRepository.Update(enrollment);
             }
 
-=======
->>>>>>> ee194c07c122bf48106af85d3475a24fce023e6c
             // Delete corresponding User account
             var user = _userRepository.GetByReferenceId(id, "Faculty");
             if (user != null)

@@ -26,7 +26,6 @@
                     <h1 class="mt-4">
                         @ViewData["breadcrumb"]
                     </h1>
-<<<<<<< HEAD
                     @if (!string.IsNullOrEmpty(ViewData["breadcrumb-item"]?.ToString()))
                     {
                         <ol class="breadcrumb mb-4">
@@ -35,13 +34,6 @@
                             </li>
                         </ol>
                     }
-=======
-                    <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item active">
-                            @ViewData["breadcrumb-item"]
-                        </li>
-                    </ol>
->>>>>>> ee194c07c122bf48106af85d3475a24fce023e6c
                     @RenderBody()
                 </div>
             </main>
