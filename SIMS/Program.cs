@@ -29,19 +29,19 @@ namespace SIMS
             {
                 // Production / Development: dùng SQL Server
                 connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-                if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            }
+            
+            builder.Services.AddDbContext<SIMSDbContext>(options =>
+                options.UseSqlServer(connectionString, sqlOptions =>
                 {
-                    throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-                }
-
-                builder.Services.AddDbContext<SIMSDbContext>(options =>
-                    options.UseSqlServer(connectionString, sqlOptions =>
-                    {
-                        sqlOptions.EnableRetryOnFailure(
-                            maxRetryCount: 3,
-                            maxRetryDelay: TimeSpan.FromSeconds(30),
-                            errorNumbersToAdd: null);
-                    }));
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null);
+                }));
             }
             else
             {
@@ -81,7 +81,7 @@ namespace SIMS
                 try
                 {
                     var context = services.GetRequiredService<SIMSDbContext>();
-
+                    
                     if (app.Environment.IsEnvironment("Testing"))
                     {
                         logger.LogInformation("Đang chạy trong môi trường Testing với InMemory database.");
@@ -89,21 +89,21 @@ namespace SIMS
                     }
                     else
                     {
-                        logger.LogInformation("Đang kiểm tra kết nối database...");
-
-                        // Test connection first
-                        if (!context.Database.CanConnect())
-                        {
-                            logger.LogWarning("Không thể kết nối đến database. Đang thử tạo database...");
-                            context.Database.EnsureCreated();
-                            logger.LogInformation("Database đã được tạo thành công!");
-                        }
-                        else
-                        {
-                            logger.LogInformation("Đã kết nối thành công đến database.");
-
-                            // Ensure tables exist
-                            context.Database.EnsureCreated();
+                    logger.LogInformation("Đang kiểm tra kết nối database...");
+                    
+                    // Test connection first
+                    if (!context.Database.CanConnect())
+                    {
+                        logger.LogWarning("Không thể kết nối đến database. Đang thử tạo database...");
+                        context.Database.EnsureCreated();
+                        logger.LogInformation("Database đã được tạo thành công!");
+                    }
+                    else
+                    {
+                        logger.LogInformation("Đã kết nối thành công đến database.");
+                        
+                        // Ensure tables exist
+                        context.Database.EnsureCreated();
                         }
                     }
                 }
@@ -114,7 +114,7 @@ namespace SIMS
                     Console.WriteLine($"Lỗi: {sqlEx.Message}");
                     if (connectionString != null)
                     {
-                        Console.WriteLine($"Connection String: {connectionString}");
+                    Console.WriteLine($"Connection String: {connectionString}");
                     }
                     Console.WriteLine($"\nCÁCH KHẮC PHỤC:");
                     Console.WriteLine($"1. Kiểm tra SQL Server đã được cài đặt và đang chạy");
@@ -132,7 +132,7 @@ namespace SIMS
                     Console.WriteLine($"Message: {ex.Message}");
                     if (connectionString != null)
                     {
-                        Console.WriteLine($"Connection String: {connectionString}\n");
+                    Console.WriteLine($"Connection String: {connectionString}\n");
                     }
                 }
             }
