@@ -32,6 +32,15 @@ namespace SIMS.Models
         [Required]
         [StringLength(20)]
         public string Status { get; set; } = "Active"; // Active, Inactive
+
+        [StringLength(20)]
+        public string? Phone { get; set; }
+
+        [StringLength(255)]
+        public string? Address { get; set; }
+
+        [StringLength(10)]
+        public string? Gender { get; set; } // Male, Female, Other
     }
 }
 

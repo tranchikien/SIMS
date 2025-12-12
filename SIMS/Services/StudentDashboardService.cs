@@ -102,23 +102,47 @@ namespace SIMS.Services
         {
             var grades = _gradeRepository.GetByStudentId(studentId).ToList();
             var courses = _courseRepository.GetAll().ToList();
+            var faculties = _facultyRepository.GetAll().ToList();
 
             return grades
                 .Select(g => new
                 {
                     Grade = g,
-                    Course = courses.FirstOrDefault(c => c.Id == g.CourseId)
+                    Course = courses.FirstOrDefault(c => c.Id == g.CourseId),
+                    Faculty = g.FacultyId.HasValue 
+                        ? faculties.FirstOrDefault(f => f.Id == g.FacultyId.Value)
+                        : null
                 })
                 .Where(x => x.Course != null)
-                .Select(x => new StudentGradeDisplay
+                .Select(x =>
                 {
-                    CourseName = x.Course!.CourseName,
-                    FinalScore = x.Grade.FinalScore,
-                    TotalScore = x.Grade.TotalScore,
-                    LetterGrade = !string.IsNullOrEmpty(x.Grade.LetterGrade)
-                        ? x.Grade.LetterGrade
-                        : (x.Grade.TotalScore.HasValue ? GetLetterGrade(x.Grade.TotalScore.Value) : null),
-                    Comment = x.Grade.Comment
+                    // Lấy thông tin giảng viên từ Grade.FacultyId (ưu tiên)
+                    // Nếu không có thì fallback về Enrollment.FacultyId
+                    Faculty? faculty = x.Faculty;
+                    
+                    // Fallback: Nếu Grade không có FacultyId, lấy từ Enrollment
+                    if (faculty == null)
+                    {
+                        var enrollments = _enrollmentRepository.GetByStudentId(studentId).ToList();
+                        var enrollment = enrollments.FirstOrDefault(e => e.Id == x.Grade.EnrollmentId);
+                        if (enrollment != null && enrollment.FacultyId.HasValue)
+                        {
+                            faculty = faculties.FirstOrDefault(f => f.Id == enrollment.FacultyId.Value);
+                        }
+                    }
+
+                    return new StudentGradeDisplay
+                    {
+                        CourseName = x.Course!.CourseName,
+                        FinalScore = x.Grade.FinalScore,
+                        TotalScore = x.Grade.TotalScore,
+                        LetterGrade = !string.IsNullOrEmpty(x.Grade.LetterGrade)
+                            ? x.Grade.LetterGrade
+                            : (x.Grade.TotalScore.HasValue ? GetLetterGrade(x.Grade.TotalScore.Value) : null),
+                        Comment = x.Grade.Comment,
+                        FacultyName = faculty?.FullName ?? "Not Assigned",
+                        FacultyDepartment = faculty?.Department ?? "-"
+                    };
                 })
                 .ToList();
         }

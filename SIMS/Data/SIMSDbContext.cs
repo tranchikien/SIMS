@@ -33,11 +33,16 @@ namespace SIMS.Data
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
                 entity.Property(e => e.Role).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasDefaultValue("Active");
+                entity.Property(e => e.Phone).HasMaxLength(20);
+                entity.Property(e => e.Address).HasMaxLength(255);
+                entity.Property(e => e.Gender).HasMaxLength(10);
                 
                 // Add check constraint for Role
                 entity.ToTable(t => t.HasCheckConstraint("CK_User_Role", "Role IN ('Admin', 'Faculty', 'Student')"));
                 // Add check constraint for Status
                 entity.ToTable(t => t.HasCheckConstraint("CK_User_Status", "Status IN ('Active', 'Inactive')"));
+                // Add check constraint for Gender
+                entity.ToTable(t => t.HasCheckConstraint("CK_User_Gender", "Gender IS NULL OR Gender IN ('Male', 'Female', 'Other')"));
             });
 
             // Configure Student entity
@@ -129,6 +134,12 @@ namespace SIMS.Data
                     .WithMany()
                     .HasForeignKey(e => e.EnrollmentId)
                     .OnDelete(DeleteBehavior.Cascade);
+                
+                // Configure Faculty relationship (optional)
+                entity.HasOne<Faculty>()
+                    .WithMany()
+                    .HasForeignKey(e => e.FacultyId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // Configure AdminProfile entity

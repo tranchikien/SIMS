@@ -19,6 +19,8 @@
                     <thead class="table-dark">
                         <tr>
                             <th>Course Name</th>
+                            <th>Faculty Name</th>
+                            <th>Department</th>
                             <th>Final Score</th>
                             <th>Grade</th>
                             <th>Comment (Optional)</th>
@@ -29,6 +31,29 @@
                         {
                             <tr>
                                 <td><strong>@grade.CourseName</strong></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(grade.FacultyName) && grade.FacultyName != "Not Assigned")
+                                    {
+                                        <span class="text-primary">
+                                            <i class="fas fa-user-tie me-1"></i>
+                                            @grade.FacultyName
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not Assigned</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(grade.FacultyDepartment) && grade.FacultyDepartment != "-")
+                                    {
+                                        <span class="badge bg-info">@grade.FacultyDepartment</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
                                 <td>
                                     @if (grade.FinalScore.HasValue)
                                     {

@@ -12,13 +12,16 @@ namespace SIMS.Controllers
     {
         private readonly IStudentDashboardService _studentDashboardService;
         private readonly IStudentRepository _studentRepository;
+        private readonly IUserRepository _userRepository;
 
         public StudentDashboardController(
             IStudentDashboardService studentDashboardService,
-            IStudentRepository studentRepository)
+            IStudentRepository studentRepository,
+            IUserRepository userRepository)
         {
             _studentDashboardService = studentDashboardService;
             _studentRepository = studentRepository;
+            _userRepository = userRepository;
         }
 
         private Student? GetCurrentStudent()
@@ -62,10 +65,78 @@ namespace SIMS.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
+            // Get User information for Phone, Address, Gender
+            var user = _userRepository.GetByReferenceId(student.Id, "Student");
+            var viewModel = new StudentProfileViewModel
+            {
+                Id = student.Id,
+                StudentId = student.StudentId,
+                FullName = student.FullName,
+                Email = student.Email,
+                Program = student.Program,
+                Status = student.Status,
+                Phone = user?.Phone,
+                Address = user?.Address,
+                Gender = user?.Gender
+            };
+
             ViewData["Title"] = "My Profile";
             ViewData["breadcrumb"] = "My Profile";
             ViewData["breadcrumb-item"] = "my-profile";
-            return View(student);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Profile(StudentProfileViewModel model)
+        {
+            var student = GetCurrentStudent();
+            if (student == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Validate editable fields: Phone, Address, Gender
+            if (model.Phone != null && model.Phone.Length > 20)
+            {
+                ModelState.AddModelError("Phone", "Phone number cannot exceed 20 characters.");
+            }
+            if (model.Address != null && model.Address.Length > 255)
+            {
+                ModelState.AddModelError("Address", "Address cannot exceed 255 characters.");
+            }
+            if (model.Gender != null && model.Gender.Length > 10)
+            {
+                ModelState.AddModelError("Gender", "Gender cannot exceed 10 characters.");
+            }
+            if (model.Gender != null && !string.IsNullOrEmpty(model.Gender) && !new[] { "Male", "Female", "Other" }.Contains(model.Gender))
+            {
+                ModelState.AddModelError("Gender", "Gender must be Male, Female, or Other.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                // Reload read-only fields
+                model.StudentId = student.StudentId;
+                model.FullName = student.FullName;
+                model.Email = student.Email;
+                model.Program = student.Program;
+                model.Status = student.Status;
+                return View(model);
+            }
+
+            // Update User Phone, Address, and Gender
+            var userToUpdate = _userRepository.GetByReferenceId(student.Id, "Student");
+            if (userToUpdate != null)
+            {
+                userToUpdate.Phone = model.Phone;
+                userToUpdate.Address = model.Address;
+                userToUpdate.Gender = model.Gender; // Now editable
+                _userRepository.Update(userToUpdate);
+            }
+
+            TempData["ProfileUpdated"] = true;
+            return RedirectToAction(nameof(Profile));
         }
 
         public IActionResult MyCourses()

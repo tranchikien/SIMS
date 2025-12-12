@@ -33,6 +33,18 @@ namespace SIMS.Models
 
         [Required]
         public string Role { get; set; } = "Faculty";
+
+        [Display(Name = "Phone")]
+        [StringLength(20, ErrorMessage = "Phone number cannot exceed 20 characters.")]
+        public string? Phone { get; set; }
+
+        [Display(Name = "Address")]
+        [StringLength(255, ErrorMessage = "Address cannot exceed 255 characters.")]
+        public string? Address { get; set; }
+
+        [Display(Name = "Gender")]
+        [StringLength(10, ErrorMessage = "Gender cannot exceed 10 characters.")]
+        public string? Gender { get; set; }
     }
 }
 

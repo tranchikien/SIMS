@@ -65,7 +65,8 @@ namespace SIMS.Services
                     FinalScore = studentGrade.FinalScore,
                     TotalScore = studentGrade.FinalScore,
                     LetterGrade = CalculateLetterGrade(studentGrade.FinalScore.Value),
-                    Comment = studentGrade.Comment
+                    Comment = studentGrade.Comment,
+                    FacultyId = facultyId // Lưu FacultyId của giảng viên đã chấm điểm
                 };
                 _gradeRepository.Add(newGrade);
             }

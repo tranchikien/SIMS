@@ -3,6 +3,7 @@ using SIMS.Models;
 using SIMS.Repositories;
 using SIMS.Services;
 using System;
+using System.Linq;
 
 namespace SIMS.Controllers
 {
@@ -16,19 +17,22 @@ namespace SIMS.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly IAdminProfileRepository _adminProfileRepository;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IUserRepository _userRepository;
 
         public DashboardController(
             IStudentRepository studentRepository,
             IFacultyRepository facultyRepository,
             ICourseRepository courseRepository,
             IAdminProfileRepository adminProfileRepository,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            IUserRepository userRepository)
         {
             _studentRepository = studentRepository;
             _facultyRepository = facultyRepository;
             _courseRepository = courseRepository;
             _adminProfileRepository = adminProfileRepository;
             _authorizationService = authorizationService;
+            _userRepository = userRepository;
         }
 
         public IActionResult Index()
@@ -65,10 +69,36 @@ namespace SIMS.Controllers
         {
             return _authorizationService.EnsureAdmin(HttpContext, () =>
             {
+                // Validate editable fields: Phone, Address, Gender
+                if (profile.Phone != null && profile.Phone.Length > 20)
+                {
+                    ModelState.AddModelError("Phone", "Phone number cannot exceed 20 characters.");
+                }
+                if (profile.Address != null && profile.Address.Length > 255)
+                {
+                    ModelState.AddModelError("Address", "Address cannot exceed 255 characters.");
+                }
+                if (profile.Gender != null && profile.Gender.Length > 10)
+                {
+                    ModelState.AddModelError("Gender", "Gender cannot exceed 10 characters.");
+                }
+                if (profile.Gender != null && !new[] { "Male", "Female", "Other" }.Contains(profile.Gender))
+                {
+                    ModelState.AddModelError("Gender", "Gender must be Male, Female, or Other.");
+                }
+
                 if (!ModelState.IsValid)
                 {
                     return View(profile);
                 }
+
+                // Get existing profile to preserve read-only fields
+                var existingProfile = _adminProfileRepository.Get();
+                profile.Username = existingProfile.Username;
+                profile.FullName = existingProfile.FullName;
+                profile.Email = existingProfile.Email;
+                profile.Role = existingProfile.Role;
+                // Gender is now editable, so keep the value from the form
 
                 _adminProfileRepository.Save(profile);
                 TempData["ProfileUpdated"] = true;

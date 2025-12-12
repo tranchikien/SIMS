@@ -15,15 +15,18 @@ namespace SIMS.Controllers
         private readonly IStudentRepository _studentRepository;
         private readonly IStudentService _studentService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IUserRepository _userRepository;
 
         public StudentController(
             IStudentRepository studentRepository, 
             IStudentService studentService,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            IUserRepository userRepository)
         {
             _studentRepository = studentRepository;
             _studentService = studentService;
             _authorizationService = authorizationService;
+            _userRepository = userRepository;
         }
 
         // Public property to get count for Dashboard
@@ -93,6 +96,8 @@ namespace SIMS.Controllers
                     return NotFound();
                 }
 
+                // Get User information for Phone, Address, Gender
+                var user = _userRepository.GetByReferenceId(student.Id, "Student");
                 var model = new StudentEditViewModel
                 {
                     Id = student.Id,
@@ -103,7 +108,10 @@ namespace SIMS.Controllers
                     Password = null, // Don't pre-fill password for security
                     ConfirmPassword = null,
                     Role = "Student", // Role is always Student for students
-                    Status = student.Status
+                    Status = student.Status,
+                    Phone = user?.Phone,
+                    Address = user?.Address,
+                    Gender = user?.Gender
                 };
 
                 ViewData["Title"] = "Edit Student";

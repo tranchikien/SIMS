@@ -1,8 +1,10 @@
 using SIMS.Models;
 using SIMS.Repositories;
+using SIMS.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace SIMS.Services
 {
@@ -12,10 +14,17 @@ namespace SIMS.Services
     public class CourseService : ICourseService
     {
         private readonly ICourseRepository _courseRepository;
+        private readonly IEnrollmentRepository _enrollmentRepository;
+        private readonly IGradeRepository _gradeRepository;
 
-        public CourseService(ICourseRepository courseRepository)
+        public CourseService(
+            ICourseRepository courseRepository,
+            IEnrollmentRepository enrollmentRepository,
+            IGradeRepository gradeRepository)
         {
             _courseRepository = courseRepository;
+            _enrollmentRepository = enrollmentRepository;
+            _gradeRepository = gradeRepository;
         }
 
         public IEnumerable<Course> GetAllCourses(string? searchString = null)
@@ -80,6 +89,26 @@ namespace SIMS.Services
                 return false;
             }
 
+            // Get all enrollments for this course
+            var enrollments = _enrollmentRepository.GetByCourseId(id).ToList();
+            
+            // Delete all grades associated with these enrollments first
+            foreach (var enrollment in enrollments)
+            {
+                var grade = _gradeRepository.GetByEnrollmentId(enrollment.Id);
+                if (grade != null)
+                {
+                    _gradeRepository.Delete(grade.Id);
+                }
+            }
+
+            // Delete all enrollments for this course
+            foreach (var enrollment in enrollments)
+            {
+                _enrollmentRepository.Delete(enrollment.Id);
+            }
+
+            // Now safe to delete the course
             _courseRepository.Delete(id);
             return true;
         }

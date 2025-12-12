@@ -1,5 +1,5 @@
 @using SIMS.Models
-@model Student
+@model StudentProfileViewModel
 @{
     Layout = "~/Views/Shared/_MainLayout.cshtml";
     ViewData["Title"] = "My Profile";
@@ -10,78 +10,157 @@
 <div class="row">
     <div class="col-xl-8">
         <div class="card mb-4">
-            <div class="card-header">
-                <i class="fas fa-user me-1"></i>
-                My Profile
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-user me-1"></i>
+                    My Profile
+                </span>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="editProfileBtn">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </button>
+                    <button type="submit" form="studentProfileForm" class="btn btn-primary btn-sm" id="saveProfileBtn" disabled>
+                        <i class="fas fa-save me-1"></i>Save
+                    </button>
+                </div>
             </div>
             <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-1"></i>
-                    This information is read-only. Please contact the administrator if you need to update your profile.
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Full Name:</label>
+                @if (TempData["ProfileUpdated"] is bool updated && updated)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Profile updated successfully.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                    <div class="col-md-8">
-                        <p class="form-control-plaintext">@Model.FullName</p>
+                }
+                <form asp-action="Profile" method="post" id="studentProfileForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Full Name:</label>
+                        </div>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">@Model.FullName</p>
+                        </div>
                     </div>
-                </div>
 
-                <hr />
+                    <hr />
 
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Email:</label>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Email:</label>
+                        </div>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">@Model.Email</p>
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <p class="form-control-plaintext">@Model.Email</p>
-                    </div>
-                </div>
 
-                <hr />
+                    <hr />
 
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Student ID:</label>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Student ID:</label>
+                        </div>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">@Model.StudentId</p>
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <p class="form-control-plaintext">@Model.StudentId</p>
-                    </div>
-                </div>
 
-                <hr />
+                    <hr />
 
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Program:</label>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Program:</label>
+                        </div>
+                        <div class="col-md-8">
+                            <p class="form-control-plaintext">@Model.Program</p>
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        <p class="form-control-plaintext">@Model.Program</p>
-                    </div>
-                </div>
 
-                <hr />
+                    <hr />
 
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">Status:</label>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Status:</label>
+                        </div>
+                        <div class="col-md-8">
+                            @if (Model.Status == "Active")
+                            {
+                                <span class="badge bg-success">@Model.Status</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@Model.Status</span>
+                            }
+                        </div>
                     </div>
-                    <div class="col-md-8">
-                        @if (Model.Status == "Active")
-                        {
-                            <span class="badge bg-success">@Model.Status</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">@Model.Status</span>
-                        }
-                    </div>
-                </div>
 
+                    <hr />
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Gender" class="form-label fw-bold"></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select asp-for="Gender" class="form-select" readonly data-editable="true">
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span asp-validation-for="Gender" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Phone" class="form-label fw-bold"></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input asp-for="Phone" class="form-control" readonly data-editable="true" placeholder="Enter phone number" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Address" class="form-label fw-bold"></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea asp-for="Address" class="form-control" readonly data-editable="true" rows="3" placeholder="Enter address"></textarea>
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const editBtn = document.getElementById('editProfileBtn');
+            const saveBtn = document.getElementById('saveProfileBtn');
+            const form = document.getElementById('studentProfileForm');
+            const editableInputs = form.querySelectorAll('input[data-editable="true"], textarea[data-editable="true"], select[data-editable="true"]');
+
+            editBtn?.addEventListener('click', () => {
+                editableInputs.forEach(input => {
+                    input.removeAttribute('readonly');
+                });
+                editableInputs[0]?.focus();
+                saveBtn.removeAttribute('disabled');
+                editBtn.setAttribute('disabled', 'disabled');
+            });
+        })();
+    </script>
+}
 

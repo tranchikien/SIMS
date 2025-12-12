@@ -24,6 +24,8 @@ namespace SIMS.Models
         public string? LetterGrade { get; set; } // A, B, C, D, F
 
         public string? Comment { get; set; } // Optional comment from faculty
+
+        public int? FacultyId { get; set; } // ID của giảng viên đã chấm điểm
     }
 }
 

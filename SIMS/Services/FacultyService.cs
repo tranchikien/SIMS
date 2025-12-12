@@ -75,7 +75,10 @@ namespace SIMS.Services
                 Email = model.Email,
                 Role = "Faculty",
                 ReferenceId = faculty.Id,
-                Status = "Active"
+                Status = "Active",
+                Phone = model.Phone,
+                Address = model.Address,
+                Gender = model.Gender
             };
             _userRepository.Add(user);
 
@@ -118,6 +121,9 @@ namespace SIMS.Services
                 user.Email = model.Email;
                 user.Username = model.FacultyId;
                 user.Status = model.Status;
+                user.Phone = model.Phone;
+                user.Address = model.Address;
+                user.Gender = model.Gender;
                 if (!string.IsNullOrEmpty(model.Password))
                 {
                     user.Password = model.Password;

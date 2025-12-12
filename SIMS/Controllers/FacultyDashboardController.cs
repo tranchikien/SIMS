@@ -16,6 +16,7 @@ namespace SIMS.Controllers
         private readonly IStudentRepository _studentRepository;
         private readonly IGradeRepository _gradeRepository;
         private readonly IGradeService _gradeService;
+        private readonly IUserRepository _userRepository;
 
         public FacultyDashboardController(
             IFacultyRepository facultyRepository,
@@ -23,7 +24,8 @@ namespace SIMS.Controllers
             ICourseRepository courseRepository,
             IStudentRepository studentRepository,
             IGradeRepository gradeRepository,
-            IGradeService gradeService)
+            IGradeService gradeService,
+            IUserRepository userRepository)
         {
             _facultyRepository = facultyRepository;
             _enrollmentRepository = enrollmentRepository;
@@ -31,6 +33,7 @@ namespace SIMS.Controllers
             _studentRepository = studentRepository;
             _gradeRepository = gradeRepository;
             _gradeService = gradeService;
+            _userRepository = userRepository;
         }
 
         private Faculty? GetCurrentFaculty()
@@ -92,10 +95,78 @@ namespace SIMS.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
+            // Get User information for Phone, Address, Gender
+            var user = _userRepository.GetByReferenceId(faculty.Id, "Faculty");
+            var viewModel = new FacultyProfileViewModel
+            {
+                Id = faculty.Id,
+                FacultyId = faculty.FacultyId,
+                FullName = faculty.FullName,
+                Email = faculty.Email,
+                Department = faculty.Department,
+                Status = faculty.Status,
+                Phone = user?.Phone,
+                Address = user?.Address,
+                Gender = user?.Gender
+            };
+
             ViewData["Title"] = "My Profile";
             ViewData["breadcrumb"] = "My Profile";
             ViewData["breadcrumb-item"] = "";
-            return View(faculty);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Profile(FacultyProfileViewModel model)
+        {
+            var faculty = GetCurrentFaculty();
+            if (faculty == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // Validate editable fields: Phone, Address, Gender
+            if (model.Phone != null && model.Phone.Length > 20)
+            {
+                ModelState.AddModelError("Phone", "Phone number cannot exceed 20 characters.");
+            }
+            if (model.Address != null && model.Address.Length > 255)
+            {
+                ModelState.AddModelError("Address", "Address cannot exceed 255 characters.");
+            }
+            if (model.Gender != null && model.Gender.Length > 10)
+            {
+                ModelState.AddModelError("Gender", "Gender cannot exceed 10 characters.");
+            }
+            if (model.Gender != null && !string.IsNullOrEmpty(model.Gender) && !new[] { "Male", "Female", "Other" }.Contains(model.Gender))
+            {
+                ModelState.AddModelError("Gender", "Gender must be Male, Female, or Other.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                // Reload read-only fields
+                model.FacultyId = faculty.FacultyId;
+                model.FullName = faculty.FullName;
+                model.Email = faculty.Email;
+                model.Department = faculty.Department;
+                model.Status = faculty.Status;
+                return View(model);
+            }
+
+            // Update User Phone, Address, and Gender
+            var userToUpdate = _userRepository.GetByReferenceId(faculty.Id, "Faculty");
+            if (userToUpdate != null)
+            {
+                userToUpdate.Phone = model.Phone;
+                userToUpdate.Address = model.Address;
+                userToUpdate.Gender = model.Gender; // Now editable
+                _userRepository.Update(userToUpdate);
+            }
+
+            TempData["ProfileUpdated"] = true;
+            return RedirectToAction(nameof(Profile));
         }
 
         public IActionResult MyCourses()
@@ -188,6 +259,7 @@ namespace SIMS.Controllers
             ViewData["breadcrumb-item"] = "view-students";
             ViewData["Course"] = course;
             ViewData["StudentList"] = studentList;
+            ViewData["Faculty"] = faculty; // Thêm thông tin giảng viên vào ViewData
 
             return View();
         }
@@ -237,6 +309,7 @@ namespace SIMS.Controllers
             ViewData["Title"] = "Grade Students";
             ViewData["breadcrumb"] = $"Grade Students - {course.CourseName}";
             ViewData["breadcrumb-item"] = "grade-students";
+            ViewData["Faculty"] = faculty; // Thêm thông tin giảng viên vào ViewData
 
             return View(gradeViewModel);
         }
@@ -266,6 +339,7 @@ namespace SIMS.Controllers
                 ViewData["Title"] = "Grade Students";
                 ViewData["breadcrumb"] = $"Grade Students - {course.CourseName}";
                 ViewData["breadcrumb-item"] = "grade-students";
+                ViewData["Faculty"] = faculty; // Thêm thông tin giảng viên vào ViewData
             }
 
             return View(model);

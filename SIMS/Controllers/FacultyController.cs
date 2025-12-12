@@ -15,15 +15,18 @@ namespace SIMS.Controllers
         private readonly IFacultyRepository _facultyRepository;
         private readonly IFacultyService _facultyService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IUserRepository _userRepository;
 
         public FacultyController(
             IFacultyRepository facultyRepository, 
             IFacultyService facultyService,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            IUserRepository userRepository)
         {
             _facultyRepository = facultyRepository;
             _facultyService = facultyService;
             _authorizationService = authorizationService;
+            _userRepository = userRepository;
         }
 
         // Public property to get count for Dashboard
@@ -93,18 +96,23 @@ namespace SIMS.Controllers
                     return NotFound();
                 }
 
-            var model = new FacultyEditViewModel
-            {
-                Id = faculty.Id,
-                FullName = faculty.FullName,
-                Email = faculty.Email,
-                FacultyId = faculty.FacultyId,
-                Department = faculty.Department,
-                Password = null, // Don't pre-fill password for security
-                ConfirmPassword = null,
-                Role = "Faculty", // Role is always Faculty for faculties
-                Status = faculty.Status
-            };
+                // Get User information for Phone, Address, Gender
+                var user = _userRepository.GetByReferenceId(faculty.Id, "Faculty");
+                var model = new FacultyEditViewModel
+                {
+                    Id = faculty.Id,
+                    FullName = faculty.FullName,
+                    Email = faculty.Email,
+                    FacultyId = faculty.FacultyId,
+                    Department = faculty.Department,
+                    Password = null, // Don't pre-fill password for security
+                    ConfirmPassword = null,
+                    Role = "Faculty", // Role is always Faculty for faculties
+                    Status = faculty.Status,
+                    Phone = user?.Phone,
+                    Address = user?.Address,
+                    Gender = user?.Gender
+                };
 
                 ViewData["Title"] = "Edit Faculty";
                 ViewData["breadcrumb"] = "Edit Faculty";
