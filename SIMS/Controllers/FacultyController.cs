@@ -173,6 +173,25 @@ namespace SIMS.Controllers
             });
         }
 
+        // GET: Faculty/DeleteImpact/5
+        [HttpGet]
+        public IActionResult GetDeletionImpact(int id)
+        {
+            return _authorizationService.EnsureAdmin(HttpContext, () =>
+            {
+                var impact = _facultyService.GetFacultyDeletionImpact(id);
+                var faculty = _facultyService.GetFacultyById(id);
+                
+                return Json(new
+                {
+                    enrollmentsCount = impact.EnrollmentsCount,
+                    gradesCount = impact.GradesCount,
+                    facultyName = faculty?.FullName ?? "Unknown",
+                    note = "Faculty references in enrollments and grades will be set to NULL, but records will be preserved."
+                });
+            });
+        }
+
         // POST: Faculty/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]

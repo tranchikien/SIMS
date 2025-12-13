@@ -58,6 +58,8 @@ namespace SIMS
             builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
             builder.Services.AddScoped<IGradeRepository, GradeRepository>();
             builder.Services.AddScoped<IAdminProfileRepository, AdminProfileRepository>();
+            builder.Services.AddScoped<IActivityLogRepository, ActivityLogRepository>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
             builder.Services.AddScoped<IIdGenerator, IdGenerator>();
 
             // Register Services (SOLID: Single Responsibility)
@@ -69,6 +71,8 @@ namespace SIMS
             builder.Services.AddScoped<IFacultyService, FacultyService>();
             builder.Services.AddScoped<ICourseService, CourseService>();
             builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+            builder.Services.AddScoped<IActivityLogService, ActivityLogService>();
+            builder.Services.AddScoped<NotificationService>();
 
             var app = builder.Build();
 

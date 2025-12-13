@@ -1,0 +1,143 @@
+@model List<SIMS.Models.ActivityLogViewModel>
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "Activity Log";
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-history me-1"></i>
+        Activity Log - Grade History
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <p class="text-muted">This log shows all grade-related activities including who graded students and when.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Activity Type</th>
+                        <th>Student</th>
+                        <th>Course</th>
+                        <th>Faculty</th>
+                        <th>Description</th>
+                        <th>Performed By</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td>@log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>
+                                    @if (log.ActivityType == "GradeCreated")
+                                    {
+                                        <span class="badge bg-success">Grade Created</span>
+                                    }
+                                    else if (log.ActivityType == "GradeUpdated")
+                                    {
+                                        <span class="badge bg-warning">Grade Updated</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@log.ActivityType</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (log.StudentId.HasValue && !string.IsNullOrEmpty(log.StudentName))
+                                    {
+                                        <div>@log.StudentCode - @log.StudentName</div>
+                                        <small class="text-muted">(ID: @log.StudentId)</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (log.CourseId.HasValue && !string.IsNullOrEmpty(log.CourseName))
+                                    {
+                                        <div>@log.CourseCode - @log.CourseName</div>
+                                        <small class="text-muted">(ID: @log.CourseId)</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (log.FacultyId.HasValue && !string.IsNullOrEmpty(log.FacultyName))
+                                    {
+                                        <div>@log.FacultyCode - @log.FacultyName</div>
+                                        <small class="text-muted">(ID: @log.FacultyId)</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>@log.Description</td>
+                                <td>@log.PerformedBy</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.OldValue) || !string.IsNullOrEmpty(log.NewValue))
+                                    {
+                                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#detailModal-@log.Id">
+                                            <i class="fas fa-info-circle"></i> View
+                                        </button>
+                                        
+                                        <!-- Detail Modal -->
+                                        <div class="modal fade" id="detailModal-@log.Id" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Grade Details</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        @if (!string.IsNullOrEmpty(log.OldValue))
+                                                        {
+                                                            <div class="mb-3">
+                                                                <strong>Old Value:</strong>
+                                                                <pre class="bg-light p-2 rounded">@log.OldValue</pre>
+                                                            </div>
+                                                        }
+                                                        @if (!string.IsNullOrEmpty(log.NewValue))
+                                                        {
+                                                            <div>
+                                                                <strong>New Value:</strong>
+                                                                <pre class="bg-light p-2 rounded">@log.NewValue</pre>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center">No activity logs found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

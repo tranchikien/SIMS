@@ -24,6 +24,11 @@ namespace SIMS.Services
         (bool Success, string? ErrorMessage) UpdateCourse(int id, Course course);
         
         /// <summary>
+        /// Gets the count of enrollments and grades that will be affected by deleting a course
+        /// </summary>
+        (int EnrollmentsCount, int GradesCount) GetCourseDeletionImpact(int courseId);
+
+        /// <summary>
         /// Deletes a course
         /// </summary>
         bool DeleteCourse(int id);

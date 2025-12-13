@@ -14,15 +14,18 @@ namespace SIMS.Services
         private readonly IFacultyRepository _facultyRepository;
         private readonly IUserRepository _userRepository;
         private readonly IEnrollmentRepository _enrollmentRepository;
+        private readonly IGradeRepository _gradeRepository;
 
         public FacultyService(
             IFacultyRepository facultyRepository,
             IUserRepository userRepository,
-            IEnrollmentRepository enrollmentRepository)
+            IEnrollmentRepository enrollmentRepository,
+            IGradeRepository gradeRepository)
         {
             _facultyRepository = facultyRepository;
             _userRepository = userRepository;
             _enrollmentRepository = enrollmentRepository;
+            _gradeRepository = gradeRepository;
         }
 
         public IEnumerable<Faculty> GetAllFaculties(string? searchString = null)
@@ -134,12 +137,29 @@ namespace SIMS.Services
             return (true, null);
         }
 
+        public (int EnrollmentsCount, int GradesCount) GetFacultyDeletionImpact(int facultyId)
+        {
+            var enrollments = _enrollmentRepository.GetByFacultyId(facultyId).ToList();
+            var grades = _gradeRepository.GetByFacultyId(facultyId).ToList();
+
+            return (enrollments.Count, grades.Count);
+        }
+
         public bool DeleteFaculty(int id)
         {
             var faculty = _facultyRepository.GetById(id);
             if (faculty == null)
             {
                 return false;
+            }
+
+            // Set FacultyId to NULL for all grades referencing this faculty
+            // This preserves the grades but removes the faculty reference
+            var grades = _gradeRepository.GetByFacultyId(id).ToList();
+            foreach (var grade in grades)
+            {
+                grade.FacultyId = null;
+                _gradeRepository.Update(grade);
             }
 
             // Set FacultyId to NULL for all enrollments referencing this faculty

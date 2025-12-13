@@ -47,6 +47,16 @@ namespace SIMS.Services
         /// Gets all faculties for dropdown
         /// </summary>
         IEnumerable<Faculty> GetAllFaculties();
+
+        /// <summary>
+        /// Updates the FacultyId for an existing enrollment
+        /// </summary>
+        (bool Success, string? ErrorMessage) UpdateEnrollmentFaculty(int enrollmentId, int? facultyId);
+
+        /// <summary>
+        /// Updates both FacultyId and Status for an existing enrollment
+        /// </summary>
+        (bool Success, string? ErrorMessage) UpdateEnrollment(int enrollmentId, int? facultyId, string status);
     }
 }
 

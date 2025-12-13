@@ -81,6 +81,23 @@ namespace SIMS.Services
             return (true, null);
         }
 
+        public (int EnrollmentsCount, int GradesCount) GetCourseDeletionImpact(int courseId)
+        {
+            var enrollments = _enrollmentRepository.GetByCourseId(courseId).ToList();
+            var gradesCount = 0;
+            
+            foreach (var enrollment in enrollments)
+            {
+                var grade = _gradeRepository.GetByEnrollmentId(enrollment.Id);
+                if (grade != null)
+                {
+                    gradesCount++;
+                }
+            }
+
+            return (enrollments.Count, gradesCount);
+        }
+
         public bool DeleteCourse(int id)
         {
             var course = _courseRepository.GetById(id);

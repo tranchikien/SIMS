@@ -65,8 +65,21 @@ namespace SIMS.Services
         public (bool Success, string? ErrorMessage) CreateEnrollment(EnrollmentViewModel model)
         {
             // Check if student is already enrolled in this course
-            if (IsStudentEnrolledInCourse(model.StudentId, model.CourseId))
+            var existingEnrollment = _enrollmentRepository.GetAll()
+                .FirstOrDefault(e => e.StudentId == model.StudentId && 
+                                     e.CourseId == model.CourseId && 
+                                     e.Status == "Enrolled");
+
+            if (existingEnrollment != null)
             {
+                // If enrollment exists but FacultyId is NULL, allow updating the FacultyId
+                if (existingEnrollment.FacultyId == null && model.FacultyId.HasValue)
+                {
+                    existingEnrollment.FacultyId = model.FacultyId;
+                    _enrollmentRepository.Update(existingEnrollment);
+                    return (true, null);
+                }
+                // If enrollment exists with a FacultyId, return error
                 return (false, "This student is already enrolled in this course.");
             }
 
@@ -119,6 +132,41 @@ namespace SIMS.Services
         public IEnumerable<Faculty> GetAllFaculties()
         {
             return _facultyRepository.GetAll();
+        }
+
+        public (bool Success, string? ErrorMessage) UpdateEnrollmentFaculty(int enrollmentId, int? facultyId)
+        {
+            var enrollment = _enrollmentRepository.GetById(enrollmentId);
+            if (enrollment == null)
+            {
+                return (false, "Enrollment not found.");
+            }
+
+            enrollment.FacultyId = facultyId;
+            _enrollmentRepository.Update(enrollment);
+
+            return (true, null);
+        }
+
+        public (bool Success, string? ErrorMessage) UpdateEnrollment(int enrollmentId, int? facultyId, string status)
+        {
+            var enrollment = _enrollmentRepository.GetById(enrollmentId);
+            if (enrollment == null)
+            {
+                return (false, "Enrollment not found.");
+            }
+
+            // Validate status
+            if (!new[] { "Enrolled", "Completed", "Dropped" }.Contains(status))
+            {
+                return (false, "Invalid status. Status must be Enrolled, Completed, or Dropped.");
+            }
+
+            enrollment.FacultyId = facultyId;
+            enrollment.Status = status;
+            _enrollmentRepository.Update(enrollment);
+
+            return (true, null);
         }
     }
 }

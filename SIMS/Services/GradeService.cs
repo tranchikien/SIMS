@@ -1,6 +1,7 @@
 using SIMS.Models;
 using SIMS.Repositories;
 using System.Linq;
+using System.Text.Json;
 
 namespace SIMS.Services
 {
@@ -9,15 +10,18 @@ namespace SIMS.Services
         private readonly IGradeRepository _gradeRepository;
         private readonly IEnrollmentRepository _enrollmentRepository;
         private readonly IIdGenerator _idGenerator;
+        private readonly IActivityLogService _activityLogService;
 
         public GradeService(
             IGradeRepository gradeRepository,
             IEnrollmentRepository enrollmentRepository,
-            IIdGenerator idGenerator)
+            IIdGenerator idGenerator,
+            IActivityLogService activityLogService)
         {
             _gradeRepository = gradeRepository;
             _enrollmentRepository = enrollmentRepository;
             _idGenerator = idGenerator;
+            _activityLogService = activityLogService;
         }
 
         public void SaveGrades(GradeViewModel model, int facultyId)
@@ -51,9 +55,22 @@ namespace SIMS.Services
                     .Where(g => g.CourseId == model.CourseId)
                     .ToList();
                 
-                foreach (var oldGrade in existingGrades)
+                string? oldGradeJson = null;
+                if (existingGrades.Any())
                 {
-                    _gradeRepository.Delete(oldGrade.Id);
+                    var oldGrade = existingGrades.First();
+                    oldGradeJson = JsonSerializer.Serialize(new
+                    {
+                        FinalScore = oldGrade.FinalScore,
+                        TotalScore = oldGrade.TotalScore,
+                        LetterGrade = oldGrade.LetterGrade,
+                        Comment = oldGrade.Comment
+                    });
+                    
+                    foreach (var grade in existingGrades)
+                    {
+                        _gradeRepository.Delete(grade.Id);
+                    }
                 }
 
                 // Tạo grade mới (luôn tạo mới sau khi xóa để đảm bảo không có duplicate)
@@ -69,6 +86,32 @@ namespace SIMS.Services
                     FacultyId = facultyId // Lưu FacultyId của giảng viên đã chấm điểm
                 };
                 _gradeRepository.Add(newGrade);
+
+                // Log activity
+                var newGradeJson = JsonSerializer.Serialize(new
+                {
+                    FinalScore = newGrade.FinalScore,
+                    TotalScore = newGrade.TotalScore,
+                    LetterGrade = newGrade.LetterGrade,
+                    Comment = newGrade.Comment
+                });
+
+                var activityType = oldGradeJson != null ? "GradeUpdated" : "GradeCreated";
+                var description = oldGradeJson != null 
+                    ? $"Grade updated for student {studentId} in course {model.CourseId}" 
+                    : $"Grade created for student {studentId} in course {model.CourseId}";
+
+                _activityLogService.LogGradeAction(
+                    activityType: activityType,
+                    gradeId: newGrade.Id,
+                    studentId: studentId,
+                    courseId: model.CourseId,
+                    facultyId: facultyId,
+                    description: description,
+                    oldValue: oldGradeJson,
+                    newValue: newGradeJson,
+                    performedBy: $"Faculty ID: {facultyId}"
+                );
             }
         }
 

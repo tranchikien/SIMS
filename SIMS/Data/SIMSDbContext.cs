@@ -16,6 +16,8 @@ namespace SIMS.Data
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Grade> Grades { get; set; }
         public DbSet<AdminProfile> AdminProfiles { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -150,6 +152,39 @@ namespace SIMS.Data
                 entity.Property(e => e.FullName).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Role).IsRequired().HasMaxLength(100);
+            });
+
+            // Configure ActivityLog entity
+            modelBuilder.Entity<ActivityLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.ActivityType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Description).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.PerformedBy).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.OldValue).HasMaxLength(2000);
+                entity.Property(e => e.NewValue).HasMaxLength(2000);
+                entity.Property(e => e.CreatedAt).IsRequired();
+                
+                // Indexes for better query performance
+                entity.HasIndex(e => e.ActivityType);
+                entity.HasIndex(e => e.StudentId);
+                entity.HasIndex(e => e.CourseId);
+                entity.HasIndex(e => e.FacultyId);
+                entity.HasIndex(e => e.CreatedAt);
+            });
+
+            // Configure Notification entity
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.NotificationType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Message).IsRequired().HasMaxLength(1000);
+                entity.Property(e => e.RecipientRole).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.IsRead).IsRequired().HasDefaultValue(false);
+                entity.Property(e => e.CreatedAt).IsRequired();
             });
         }
     }

@@ -39,6 +39,11 @@ namespace SIMS.Repositories
             return _context.Grades.Where(g => g.CourseId == courseId).ToList();
         }
 
+        public IEnumerable<Grade> GetByFacultyId(int facultyId)
+        {
+            return _context.Grades.Where(g => g.FacultyId == facultyId).ToList();
+        }
+
         public Grade? GetByStudentAndCourse(int studentId, int courseId)
         {
             return _context.Grades.FirstOrDefault(g => g.StudentId == studentId && g.CourseId == courseId);

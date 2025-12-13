@@ -129,6 +129,24 @@ namespace SIMS.Controllers
             });
         }
 
+        // GET: Course/DeleteImpact/5
+        [HttpGet]
+        public IActionResult GetDeletionImpact(int id)
+        {
+            return _authorizationService.EnsureAdmin(HttpContext, () =>
+            {
+                var impact = _courseService.GetCourseDeletionImpact(id);
+                var course = _courseService.GetCourseById(id);
+                
+                return Json(new
+                {
+                    enrollmentsCount = impact.EnrollmentsCount,
+                    gradesCount = impact.GradesCount,
+                    courseName = course?.CourseName ?? "Unknown"
+                });
+            });
+        }
+
         // POST: Course/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]

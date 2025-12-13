@@ -1,0 +1,99 @@
+@model SIMS.Models.EnrollmentViewModel
+@{
+    Layout = "~/Views/Shared/_MainLayout.cshtml";
+    ViewData["Title"] = "Edit Enrollment";
+    ViewData["breadcrumb"] = "Edit Enrollment";
+    ViewData["breadcrumb-item"] = "enrollments";
+    
+    var students = ViewData["Students"] as List<SIMS.Models.Student>;
+    var courses = ViewData["Courses"] as List<SIMS.Models.Course>;
+    var faculties = ViewData["Faculties"] as List<SIMS.Models.Faculty>;
+    var enrollmentId = ViewData["EnrollmentId"] as int?;
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-edit me-1"></i>
+        Edit Enrollment
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@enrollmentId" />
+            
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""]?.Errors.Count > 0)
+            {
+                <div class="alert alert-danger">
+                    @foreach (var error in ViewData.ModelState[""].Errors)
+                    {
+                        <p class="mb-0">@error.ErrorMessage</p>
+                    }
+                </div>
+            }
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Student</label>
+                    <input type="text" class="form-control" value="@(students?.FirstOrDefault(s => s.Id == Model.StudentId)?.StudentId + " - " + students?.FirstOrDefault(s => s.Id == Model.StudentId)?.FullName)" readonly>
+                    <input type="hidden" asp-for="StudentId" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Course</label>
+                    <input type="text" class="form-control" value="@(courses?.FirstOrDefault(c => c.Id == Model.CourseId)?.CourseCode + " - " + courses?.FirstOrDefault(c => c.Id == Model.CourseId)?.CourseName)" readonly>
+                    <input type="hidden" asp-for="CourseId" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="FacultyId" class="form-label">Faculty <span class="text-danger">*</span></label>
+                    <select asp-for="FacultyId" class="form-select">
+                        <option value="">-- Select Faculty --</option>
+                        @if (faculties != null)
+                        {
+                            @foreach (var faculty in faculties)
+                            {
+                                <option value="@faculty.Id">@faculty.FacultyId - @faculty.FullName (@faculty.Department)</option>
+                            }
+                        }
+                    </select>
+                    <span asp-validation-for="FacultyId" class="text-danger"></span>
+                    <small class="form-text text-muted">Select a faculty to assign or reassign to this enrollment.</small>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label">Status</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Enrolled">Enrolled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Dropped">Dropped</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                    <small class="form-text text-muted">Update the enrollment status.</small>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-1"></i>
+                <strong>Note:</strong> You can update the faculty assignment and status for this enrollment. Student and Course cannot be changed.
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update Enrollment
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

@@ -24,6 +24,11 @@ namespace SIMS.Services
         (bool Success, string? ErrorMessage) UpdateFaculty(int id, FacultyEditViewModel model);
         
         /// <summary>
+        /// Gets the count of enrollments and grades that will be affected by deleting a faculty
+        /// </summary>
+        (int EnrollmentsCount, int GradesCount) GetFacultyDeletionImpact(int facultyId);
+
+        /// <summary>
         /// Deletes a faculty and corresponding user account
         /// </summary>
         bool DeleteFaculty(int id);

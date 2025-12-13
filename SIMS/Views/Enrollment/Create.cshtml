@@ -20,17 +20,7 @@
         <form asp-action="Create" method="post">
             @Html.AntiForgeryToken()
             
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
-            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[""]?.Errors.Count > 0)
-            {
-                <div class="alert alert-danger">
-                    @foreach (var error in ViewData.ModelState[""].Errors)
-                    {
-                        <p class="mb-0">@error.ErrorMessage</p>
-                    }
-                </div>
-            }
+            <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
 
             <div class="row mb-3">
                 <div class="col-md-6">
@@ -91,7 +81,7 @@
 
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-1"></i>
-                <strong>Note:</strong> The system will check if the student is already enrolled in the selected course. Duplicate enrollments will not be allowed.
+                <strong>Note:</strong> If the student is already enrolled in the selected course but has no assigned faculty, the system will automatically assign the selected faculty. Otherwise, duplicate enrollments will not be allowed.
             </div>
 
             <div class="row">

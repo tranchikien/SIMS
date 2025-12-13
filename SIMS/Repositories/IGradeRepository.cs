@@ -10,6 +10,7 @@ namespace SIMS.Repositories
         Grade? GetByEnrollmentId(int enrollmentId);
         IEnumerable<Grade> GetByStudentId(int studentId);
         IEnumerable<Grade> GetByCourseId(int courseId);
+        IEnumerable<Grade> GetByFacultyId(int facultyId);
         Grade? GetByStudentAndCourse(int studentId, int courseId);
         void Add(Grade grade);
         void Update(Grade grade);
