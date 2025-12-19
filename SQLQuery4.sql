@@ -1,10 +1,4 @@
--- =============================================
--- SQL Script: Insert/Update Admin User
--- =============================================
--- NOTE: Password will be automatically hashed
--- when the application runs for the first time.
--- The migration script will hash all plain text passwords.
--- =============================================
+
 
 USE SIMSDB;
 GO
@@ -30,7 +24,5 @@ BEGIN
 END
 GO
 
--- IMPORTANT: After running this script, start the application.
--- The password migration will automatically hash the password.
--- Default password: 9999 (will be hashed on first run)
+
 GO
