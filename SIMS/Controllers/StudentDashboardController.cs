@@ -13,15 +13,18 @@ namespace SIMS.Controllers
         private readonly IStudentDashboardService _studentDashboardService;
         private readonly IStudentRepository _studentRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordService _passwordService;
 
         public StudentDashboardController(
             IStudentDashboardService studentDashboardService,
             IStudentRepository studentRepository,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IPasswordService passwordService)
         {
             _studentDashboardService = studentDashboardService;
             _studentRepository = studentRepository;
             _userRepository = userRepository;
+            _passwordService = passwordService;
         }
 
         private Student? GetCurrentStudent()
@@ -137,6 +140,73 @@ namespace SIMS.Controllers
 
             TempData["ProfileUpdated"] = true;
             return RedirectToAction(nameof(Profile));
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            var student = GetCurrentStudent();
+            if (student == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            ViewData["Title"] = "Change Password";
+            ViewData["breadcrumb"] = "Change Password";
+            ViewData["breadcrumb-item"] = "change-password";
+            return View(new ChangePasswordViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangePassword(ChangePasswordViewModel model)
+        {
+            var student = GetCurrentStudent();
+            if (student == null)
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["Title"] = "Change Password";
+                ViewData["breadcrumb"] = "Change Password";
+                ViewData["breadcrumb-item"] = "change-password";
+                return View(model);
+            }
+
+            // Get current user
+            var user = _userRepository.GetByReferenceId(student.Id, "Student");
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "User not found.";
+                return View(model);
+            }
+
+            // Verify current password
+            bool isCurrentPasswordValid = _passwordService.VerifyPassword(model.CurrentPassword, user.Password);
+            
+            // Backward compatibility: check plain text if hash verification fails
+            if (!isCurrentPasswordValid && user.Password == model.CurrentPassword)
+            {
+                isCurrentPasswordValid = true;
+            }
+
+            if (!isCurrentPasswordValid)
+            {
+                ModelState.AddModelError("CurrentPassword", "Current password is incorrect.");
+                ViewData["Title"] = "Change Password";
+                ViewData["breadcrumb"] = "Change Password";
+                ViewData["breadcrumb-item"] = "change-password";
+                return View(model);
+            }
+
+            // Update password with hash
+            user.Password = _passwordService.HashPassword(model.NewPassword);
+            _userRepository.Update(user);
+
+            TempData["SuccessMessage"] = "Password changed successfully!";
+            return RedirectToAction(nameof(ChangePassword));
         }
 
         public IActionResult MyCourses()

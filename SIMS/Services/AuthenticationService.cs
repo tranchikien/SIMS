@@ -10,15 +10,18 @@ namespace SIMS.Services
         private readonly IUserRepository _userRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IFacultyRepository _facultyRepository;
+        private readonly IPasswordService _passwordService;
 
         public AuthenticationService(
             IUserRepository userRepository,
             IStudentRepository studentRepository,
-            IFacultyRepository facultyRepository)
+            IFacultyRepository facultyRepository,
+            IPasswordService passwordService)
         {
             _userRepository = userRepository;
             _studentRepository = studentRepository;
             _facultyRepository = facultyRepository;
+            _passwordService = passwordService;
         }
 
         public (bool Success, string Role, UserInfo? UserInfo) Authenticate(string username, string password)
@@ -26,7 +29,21 @@ namespace SIMS.Services
             // Check user in Users table
             var user = _userRepository.GetByUsernameOrEmail(username);
             
-            if (user != null && user.Password == password && user.Status == "Active")
+            // Verify password using PasswordService (supports both hashed and plain text for backward compatibility)
+            bool isPasswordValid = false;
+            if (user != null && user.Status == "Active")
+            {
+                // Try to verify as hashed password first
+                isPasswordValid = _passwordService.VerifyPassword(password, user.Password);
+                
+                // If verification fails, check if it's a plain text password (for backward compatibility during migration)
+                if (!isPasswordValid && user.Password == password)
+                {
+                    isPasswordValid = true;
+                }
+            }
+            
+            if (user != null && isPasswordValid && user.Status == "Active")
             {
                 // Return user info based on role
                 if (user.Role == "Student" && user.ReferenceId.HasValue)

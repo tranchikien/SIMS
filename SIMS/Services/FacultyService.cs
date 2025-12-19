@@ -15,17 +15,20 @@ namespace SIMS.Services
         private readonly IUserRepository _userRepository;
         private readonly IEnrollmentRepository _enrollmentRepository;
         private readonly IGradeRepository _gradeRepository;
+        private readonly IPasswordService _passwordService;
 
         public FacultyService(
             IFacultyRepository facultyRepository,
             IUserRepository userRepository,
             IEnrollmentRepository enrollmentRepository,
-            IGradeRepository gradeRepository)
+            IGradeRepository gradeRepository,
+            IPasswordService passwordService)
         {
             _facultyRepository = facultyRepository;
             _userRepository = userRepository;
             _enrollmentRepository = enrollmentRepository;
             _gradeRepository = gradeRepository;
+            _passwordService = passwordService;
         }
 
         public IEnumerable<Faculty> GetAllFaculties(string? searchString = null)
@@ -69,11 +72,11 @@ namespace SIMS.Services
 
             _facultyRepository.Add(faculty);
 
-            // Create corresponding User account
+            // Create corresponding User account with hashed password
             var user = new User
             {
                 Username = model.FacultyId,
-                Password = model.Password,
+                Password = _passwordService.HashPassword(model.Password),
                 FullName = model.FullName,
                 Email = model.Email,
                 Role = "Faculty",
@@ -129,7 +132,7 @@ namespace SIMS.Services
                 user.Gender = model.Gender;
                 if (!string.IsNullOrEmpty(model.Password))
                 {
-                    user.Password = model.Password;
+                    user.Password = _passwordService.HashPassword(model.Password);
                 }
                 _userRepository.Update(user);
             }

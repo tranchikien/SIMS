@@ -4,6 +4,7 @@ using SIMS.Repositories;
 using SIMS.Services;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace SIMS.Controllers
 {
@@ -18,6 +19,7 @@ namespace SIMS.Controllers
         private readonly IAdminProfileRepository _adminProfileRepository;
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordService _passwordService;
 
         public DashboardController(
             IStudentRepository studentRepository,
@@ -25,7 +27,8 @@ namespace SIMS.Controllers
             ICourseRepository courseRepository,
             IAdminProfileRepository adminProfileRepository,
             IAuthorizationService authorizationService,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IPasswordService passwordService)
         {
             _studentRepository = studentRepository;
             _facultyRepository = facultyRepository;
@@ -33,6 +36,7 @@ namespace SIMS.Controllers
             _adminProfileRepository = adminProfileRepository;
             _authorizationService = authorizationService;
             _userRepository = userRepository;
+            _passwordService = passwordService;
         }
 
         public IActionResult Index()
@@ -103,6 +107,65 @@ namespace SIMS.Controllers
                 _adminProfileRepository.Save(profile);
                 TempData["ProfileUpdated"] = true;
                 return RedirectToAction(nameof(Profile));
+            });
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return _authorizationService.EnsureAdmin(HttpContext, () =>
+            {
+                return View(new ChangePasswordViewModel());
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangePassword(ChangePasswordViewModel model)
+        {
+            return _authorizationService.EnsureAdmin(HttpContext, () =>
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                // Get current admin user
+                var username = HttpContext.Session.GetString("Username");
+                if (string.IsNullOrEmpty(username))
+                {
+                    TempData["ErrorMessage"] = "Session expired. Please login again.";
+                    return RedirectToAction("Index", "Login");
+                }
+
+                var user = _userRepository.GetByUsername(username);
+                if (user == null)
+                {
+                    TempData["ErrorMessage"] = "User not found.";
+                    return View(model);
+                }
+
+                // Verify current password
+                bool isCurrentPasswordValid = _passwordService.VerifyPassword(model.CurrentPassword, user.Password);
+                
+                // Backward compatibility: check plain text if hash verification fails
+                if (!isCurrentPasswordValid && user.Password == model.CurrentPassword)
+                {
+                    isCurrentPasswordValid = true;
+                }
+
+                if (!isCurrentPasswordValid)
+                {
+                    ModelState.AddModelError("CurrentPassword", "Current password is incorrect.");
+                    return View(model);
+                }
+
+                // Update password with hash
+                user.Password = _passwordService.HashPassword(model.NewPassword);
+                _userRepository.Update(user);
+
+                TempData["SuccessMessage"] = "Password changed successfully!";
+                return RedirectToAction(nameof(ChangePassword));
             });
         }
     }

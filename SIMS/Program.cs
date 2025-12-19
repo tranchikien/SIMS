@@ -63,6 +63,7 @@ namespace SIMS
             builder.Services.AddScoped<IIdGenerator, IdGenerator>();
 
             // Register Services (SOLID: Single Responsibility)
+            builder.Services.AddScoped<IPasswordService, PasswordService>();
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
             builder.Services.AddScoped<IStudentDashboardService, StudentDashboardService>();
@@ -108,6 +109,16 @@ namespace SIMS
                         
                         // Ensure tables exist
                         context.Database.EnsureCreated();
+                        
+                        // Run password hashing migration (if needed)
+                        try
+                        {
+                            SIMS.Migrations.HashPasswordsMigration.Run(context);
+                        }
+                        catch (Exception migrationEx)
+                        {
+                            logger.LogWarning(migrationEx, "Password migration encountered an error, but continuing...");
+                        }
                         }
                     }
                 }
